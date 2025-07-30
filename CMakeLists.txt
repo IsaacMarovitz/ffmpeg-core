@@ -43,7 +43,7 @@ execute_process(
 set(FFMPEG_ZIP_PATH "${CMAKE_BINARY_DIR}/external/ffmpeg-${FFMPEG_GIT_SHA}.zip")
 if(NOT EXISTS "${FFMPEG_ZIP_PATH}")
 	message(STATUS "Downloading FFMPEG prebuilts...")
-	file(DOWNLOAD https://github.com/shadps4-emu/ext-ffmpeg-core/releases/download/${FFMPEG_GIT_SHA}/${FFMPEG_PREBUILTS_NAME}
+	file(DOWNLOAD https://github.com/IsaacMarovitz/ffmpeg-core/releases/download/${FFMPEG_GIT_SHA}/${FFMPEG_PREBUILTS_NAME}
 			"${FFMPEG_ZIP_PATH}" SHOW_PROGRESS
 		STATUS FILE_STATUS)
 	list(GET FILE_STATUS 0 STATUS_CODE)
