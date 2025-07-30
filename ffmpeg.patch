@@ -1,4 +1,4 @@
-From 0b19a91216c630e8193573219ed0f83e2bca64eb Mon Sep 17 00:00:00 2001
+From ddd6b27f8ab8e0425651e704846c9d5c68dde83f Mon Sep 17 00:00:00 2001
 From: Isaac Marovitz <isaacryu@icloud.com>
 Date: Wed, 30 Jul 2025 16:54:47 +0100
 Subject: [PATCH] Update portfile
@@ -8,42 +8,43 @@ Signed-off-by: Isaac Marovitz <isaacryu@icloud.com>
 Add xmaframes
 
 Signed-off-by: Isaac Marovitz <isaacryu@icloud.com>
+
+Update patch
+
+Signed-off-by: Isaac Marovitz <isaacryu@icloud.com>
 ---
- ports/ffmpeg/0008-xmaframes.patch | 287 ++++++++++++++++++++++++++++++
+ ports/ffmpeg/0008-xmaframes.patch | 206 ++++++++++++++++++++++++++++++
  ports/ffmpeg/portfile.cmake       |  14 +-
- 2 files changed, 299 insertions(+), 2 deletions(-)
+ 2 files changed, 218 insertions(+), 2 deletions(-)
  create mode 100644 ports/ffmpeg/0008-xmaframes.patch
 
 diff --git a/ports/ffmpeg/0008-xmaframes.patch b/ports/ffmpeg/0008-xmaframes.patch
 new file mode 100644
-index 0000000000..9bed6f27b0
+index 0000000000..a704b52f8a
 --- /dev/null
 +++ b/ports/ffmpeg/0008-xmaframes.patch
-@@ -0,0 +1,287 @@
-+From f8fcccf99cc3a06809570c9b2becea99ae041791 Mon Sep 17 00:00:00 2001
+@@ -0,0 +1,206 @@
++From 48cbf0db44ccb7ea67b78575faeb3cf8b0202763 Mon Sep 17 00:00:00 2001
 +From: Isaac Marovitz <isaacryu@icloud.com>
-+Date: Sun, 6 Jul 2025 13:23:15 +0100
-+Subject: [PATCH 1/4] avcodec/wmaprodec: add xma raw frame decoder
++Date: Wed, 30 Jul 2025 17:09:10 +0100
++Subject: [PATCH] xmaframes
 +
-+packets need to be handled externally
-+useful for hardware decoder emulation
-+
-+Co-authored-by: Joel Linn <jl@conductive.de>
 +Signed-off-by: Isaac Marovitz <isaacryu@icloud.com>
 +---
 + configure               |  1 +
 + libavcodec/Makefile     |  1 +
 + libavcodec/allcodecs.c  |  1 +
-+ libavcodec/codec_desc.c |  7 +++
++ libavcodec/codec_desc.c |  7 ++++
 + libavcodec/codec_id.h   |  1 +
-+ libavcodec/wmaprodec.c  | 96 +++++++++++++++++++++++++++++++++++++++++
-+ 6 files changed, 107 insertions(+)
++ libavcodec/version.c    |  2 +-
++ libavcodec/wmaprodec.c  | 89 +++++++++++++++++++++++++++++++++++++++++
++ 7 files changed, 101 insertions(+), 1 deletion(-)
 +
 +diff --git a/configure b/configure
-+index 63d11de207793..00756b66198f4 100755
++index ffa407d53d55a..bd30ae76e5655 100755
 +--- a/configure
 ++++ b/configure
-+@@ -3171,6 +3171,7 @@ wmv3_decoder_select="vc1_decoder"
++@@ -3130,6 +3130,7 @@ wmv3_decoder_select="vc1_decoder"
 + wmv3image_decoder_select="wmv3_decoder"
 + xma1_decoder_select="wmapro_decoder"
 + xma2_decoder_select="wmapro_decoder"
@@ -52,10 +53,10 @@ index 0000000000..9bed6f27b0
 + zerocodec_decoder_select="inflate_wrapper"
 + zlib_decoder_select="inflate_wrapper"
 +diff --git a/libavcodec/Makefile b/libavcodec/Makefile
-+index 215577f7c9f15..065c35c85615c 100644
++index a4fcce3b42156..0dad9f35435b3 100644
 +--- a/libavcodec/Makefile
 ++++ b/libavcodec/Makefile
-+@@ -851,6 +851,7 @@ OBJS-$(CONFIG_XFACE_ENCODER)           += xfaceenc.o xface.o
++@@ -839,6 +839,7 @@ OBJS-$(CONFIG_XFACE_ENCODER)           += xfaceenc.o xface.o
 + OBJS-$(CONFIG_XL_DECODER)              += xl.o
 + OBJS-$(CONFIG_XMA1_DECODER)            += wmaprodec.o wma.o wma_common.o
 + OBJS-$(CONFIG_XMA2_DECODER)            += wmaprodec.o wma.o wma_common.o
@@ -64,10 +65,10 @@ index 0000000000..9bed6f27b0
 + OBJS-$(CONFIG_XSUB_DECODER)            += xsubdec.o
 + OBJS-$(CONFIG_XSUB_ENCODER)            += xsubenc.o
 +diff --git a/libavcodec/allcodecs.c b/libavcodec/allcodecs.c
-+index 7b01453ca28df..d8b2c499eba9b 100644
++index aa0fc4764782a..557bf6d82e6dc 100644
 +--- a/libavcodec/allcodecs.c
 ++++ b/libavcodec/allcodecs.c
-+@@ -557,6 +557,7 @@ extern const FFCodec ff_wmavoice_decoder;
++@@ -550,6 +550,7 @@ extern const FFCodec ff_wmavoice_decoder;
 + extern const FFCodec ff_ws_snd1_decoder;
 + extern const FFCodec ff_xma1_decoder;
 + extern const FFCodec ff_xma2_decoder;
@@ -76,10 +77,10 @@ index 0000000000..9bed6f27b0
 + /* PCM codecs */
 + extern const FFCodec ff_pcm_alaw_encoder;
 +diff --git a/libavcodec/codec_desc.c b/libavcodec/codec_desc.c
-+index dae229668937d..2352168d365e5 100644
++index d58c3d889c8d9..bd6177ad4d693 100644
 +--- a/libavcodec/codec_desc.c
 ++++ b/libavcodec/codec_desc.c
-+@@ -3298,6 +3298,13 @@ static const AVCodecDescriptor codec_descriptors[] = {
++@@ -3251,6 +3251,13 @@ static const AVCodecDescriptor codec_descriptors[] = {
 +         .long_name = NULL_IF_CONFIG_SMALL("Xbox Media Audio 2"),
 +         .props     = AV_CODEC_PROP_INTRA_ONLY | AV_CODEC_PROP_LOSSY,
 +     },
@@ -94,10 +95,10 @@ index 0000000000..9bed6f27b0
 +         .id        = AV_CODEC_ID_DST,
 +         .type      = AVMEDIA_TYPE_AUDIO,
 +diff --git a/libavcodec/codec_id.h b/libavcodec/codec_id.h
-+index d00d3fe121ea0..5e492a5b65844 100644
++index 0a8d3bed1e38c..b1bbf3efc2320 100644
 +--- a/libavcodec/codec_id.h
 ++++ b/libavcodec/codec_id.h
-+@@ -528,6 +528,7 @@ enum AVCodecID {
++@@ -518,6 +518,7 @@ enum AVCodecID {
 +     AV_CODEC_ID_INTERPLAY_ACM,
 +     AV_CODEC_ID_XMA1,
 +     AV_CODEC_ID_XMA2,
@@ -105,11 +106,24 @@ index 0000000000..9bed6f27b0
 +     AV_CODEC_ID_DST,
 +     AV_CODEC_ID_ATRAC3AL,
 +     AV_CODEC_ID_ATRAC3PAL,
++diff --git a/libavcodec/version.c b/libavcodec/version.c
++index 27f94323b86d6..b62f95f36b822 100644
++--- a/libavcodec/version.c
+++++ b/libavcodec/version.c
++@@ -35,7 +35,7 @@ unsigned avcodec_version(void)
++                   AV_CODEC_ID_PCM_SGA      == 65572 &&
++                   AV_CODEC_ID_ADPCM_XMD    == 69683 &&
++                   AV_CODEC_ID_CBD2_DPCM    == 81928 &&
++-                  AV_CODEC_ID_QOA          == 86121 &&
+++                  AV_CODEC_ID_QOA          == 86122 &&
++                   AV_CODEC_ID_ARIB_CAPTION == 94233 &&
++                   AV_CODEC_ID_SMPTE_2038   == 98315,
++                   "Don't insert new codec ids in the middle of a list");
 +diff --git a/libavcodec/wmaprodec.c b/libavcodec/wmaprodec.c
-+index d87ed0433e19e..a2ac771b50cb3 100644
++index a6c4a756324d0..fcaf3905831e4 100644
 +--- a/libavcodec/wmaprodec.c
 ++++ b/libavcodec/wmaprodec.c
-+@@ -400,6 +400,11 @@ static av_cold int decode_init(WMAProDecodeCtx *s, AVCodecContext *avctx, int nu
++@@ -408,6 +408,11 @@ static av_cold int decode_init(WMAProDecodeCtx *s, AVCodecContext *avctx, int nu
 +         s->bits_per_sample = 16;
 +         channel_mask       = 0; /* would need to aggregate from all streams */
 +         s->nb_channels     = edata_ptr[8 + 20*num_stream + 17]; /* nth stream config */
@@ -121,7 +135,7 @@ index 0000000000..9bed6f27b0
 +     } else if (avctx->codec_id == AV_CODEC_ID_WMAPRO && avctx->extradata_size >= 18) {
 +         s->decode_flags    = AV_RL16(edata_ptr+14);
 +         channel_mask       = AV_RL32(edata_ptr+2);
-+@@ -2082,6 +2087,82 @@ static void xma_flush(AVCodecContext *avctx)
++@@ -2088,6 +2093,74 @@ static void xma_flush(AVCodecContext *avctx)
 +     s->flushed = 0;
 + }
 + 
@@ -143,19 +157,11 @@ index 0000000000..9bed6f27b0
 ++    return 0;
 ++}
 ++
-++/**
-++ *@brief Decode a single WMA frame. Packet parsing is out of this decoders scope.
-++ *@param avctx codec context
-++ *@param data the output buffer
-++ *@param avpkt input packet. the data is preceeded by one byte that contains bit padding information
-++ *@return number of bytes that were read from the input buffer
-++ */
-++static int xmaframes_decode_packet(AVCodecContext *avctx, void *data,
+++static int xmaframes_decode_packet(AVCodecContext *avctx, AVFrame *frame,
 ++                                   int *got_frame_ptr, AVPacket *avpkt)
 ++{
 ++    WMAProDecodeCtx *s = avctx->priv_data;
 ++    GetBitContext* gb = &s->gb;
-++    AVFrame *frame = data;
 ++    int ret, xma_frame_len = 0;
 ++    uint8_t padding_start, padding_end = 0;
 ++
@@ -196,7 +202,7 @@ index 0000000000..9bed6f27b0
 ++        return 0;
 ++    }
 ++
-++    decode_frame(s, data, got_frame_ptr);
+++    decode_frame(s, frame, got_frame_ptr);
 ++
 ++    return avpkt->size;
 ++}
@@ -204,109 +210,26 @@ index 0000000000..9bed6f27b0
 + /**
 +  *@brief wmapro decoder
 +  */
-+@@ -2129,3 +2210,18 @@ const FFCodec ff_xma2_decoder = {
-+     CODEC_SAMPLEFMTS(AV_SAMPLE_FMT_FLTP),
++@@ -2150,3 +2223,19 @@ const FFCodec ff_xma2_decoder = {
++                                                       AV_SAMPLE_FMT_NONE },
 +     .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
 + };
 ++
 ++const FFCodec ff_xmaframes_decoder = {
-++    .p.name         = "xmaframes",
-++    CODEC_LONG_NAME("Xbox Media Audio raw frames"),
-++    .p.type         = AVMEDIA_TYPE_AUDIO,
-++    .p.id           = AV_CODEC_ID_XMAFRAMES,
-++    .priv_data_size = sizeof(WMAProDecodeCtx),
-++    .init           = xmaframes_decode_init,
-++    .close          = xmaframes_decode_end,
-++    FF_CODEC_DECODE_CB(xmaframes_decode_packet),
-++    .flush          = wmapro_flush,
-++    .p.capabilities = AV_CODEC_CAP_DR1,
-++    CODEC_SAMPLEFMTS(AV_SAMPLE_FMT_FLTP),
-++    .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
+++        .p.name         = "xmaframes",
+++        CODEC_LONG_NAME("Xbox Media Audio raw frames"),
+++        .p.type         = AVMEDIA_TYPE_AUDIO,
+++        .p.id           = AV_CODEC_ID_XMAFRAMES,
+++        .priv_data_size = sizeof(WMAProDecodeCtx),
+++        .init           = xmaframes_decode_init,
+++        .close          = xmaframes_decode_end,
+++        FF_CODEC_DECODE_CB(xmaframes_decode_packet),
+++        .flush          = wmapro_flush,
+++        .p.capabilities = AV_CODEC_CAP_DR1,
+++        .p.sample_fmts  = (const enum AVSampleFormat[]) { AV_SAMPLE_FMT_FLTP,
+++                                                          AV_SAMPLE_FMT_NONE },
+++        .caps_internal  = FF_CODEC_CAP_INIT_CLEANUP,
 ++};
-+
-+From 6bc3d67e53e91d6656a9194f7b3873da73c04883 Mon Sep 17 00:00:00 2001
-+From: Isaac Marovitz <isaacryu@icloud.com>
-+Date: Sun, 6 Jul 2025 13:36:28 +0100
-+Subject: [PATCH 2/4] Fix version.c
-+
-+Signed-off-by: Isaac Marovitz <isaacryu@icloud.com>
-+---
-+ libavcodec/version.c | 2 +-
-+ 1 file changed, 1 insertion(+), 1 deletion(-)
-+
-+diff --git a/libavcodec/version.c b/libavcodec/version.c
-+index 8a0398f28ff3b..ba8fdac457e04 100644
-+--- a/libavcodec/version.c
-++++ b/libavcodec/version.c
-+@@ -35,7 +35,7 @@ unsigned avcodec_version(void)
-+                   AV_CODEC_ID_PCM_SGA      == 65572 &&
-+                   AV_CODEC_ID_ADPCM_XMD    == 69683 &&
-+                   AV_CODEC_ID_CBD2_DPCM    == 81928 &&
-+-                  AV_CODEC_ID_QOA          == 86121 &&
-++                  AV_CODEC_ID_QOA          == 86122 &&
-+                   AV_CODEC_ID_IVTV_VBI     == 94234 &&
-+                   AV_CODEC_ID_SMPTE_2038   == 98315,
-+                   "Don't insert new codec ids in the middle of a list");
-+
-+From b48478c1c0766eb19a713cb771b87d8cb10d7d75 Mon Sep 17 00:00:00 2001
-+From: Isaac Marovitz <isaacryu@icloud.com>
-+Date: Sun, 6 Jul 2025 13:38:26 +0100
-+Subject: [PATCH 3/4] Fix signature
-+
-+Signed-off-by: Isaac Marovitz <isaacryu@icloud.com>
-+---
-+ libavcodec/wmaprodec.c | 10 +---------
-+ 1 file changed, 1 insertion(+), 9 deletions(-)
-+
-+diff --git a/libavcodec/wmaprodec.c b/libavcodec/wmaprodec.c
-+index a2ac771b50cb3..a8db563a6addc 100644
-+--- a/libavcodec/wmaprodec.c
-++++ b/libavcodec/wmaprodec.c
-+@@ -2105,19 +2105,11 @@ static av_cold int xmaframes_decode_end(AVCodecContext* avctx)
-+     return 0;
-+ }
-+ 
-+-/**
-+- *@brief Decode a single WMA frame. Packet parsing is out of this decoders scope.
-+- *@param avctx codec context
-+- *@param data the output buffer
-+- *@param avpkt input packet. the data is preceeded by one byte that contains bit padding information
-+- *@return number of bytes that were read from the input buffer
-+- */
-+-static int xmaframes_decode_packet(AVCodecContext *avctx, void *data,
-++static int xmaframes_decode_packet(AVCodecContext *avctx, AVFrame *frame,
-+                                    int *got_frame_ptr, AVPacket *avpkt)
-+ {
-+     WMAProDecodeCtx *s = avctx->priv_data;
-+     GetBitContext* gb = &s->gb;
-+-    AVFrame *frame = data;
-+     int ret, xma_frame_len = 0;
-+     uint8_t padding_start, padding_end = 0;
-+ 
-+
-+From 706d3a4d746b03ffd05b76c869814ccb7fb50541 Mon Sep 17 00:00:00 2001
-+From: Isaac Marovitz <isaacryu@icloud.com>
-+Date: Sun, 6 Jul 2025 13:41:51 +0100
-+Subject: [PATCH 4/4] Typo
-+
-+Signed-off-by: Isaac Marovitz <isaacryu@icloud.com>
-+---
-+ libavcodec/wmaprodec.c | 2 +-
-+ 1 file changed, 1 insertion(+), 1 deletion(-)
-+
-+diff --git a/libavcodec/wmaprodec.c b/libavcodec/wmaprodec.c
-+index a8db563a6addc..6cd81ce5cebf1 100644
-+--- a/libavcodec/wmaprodec.c
-++++ b/libavcodec/wmaprodec.c
-+@@ -2150,7 +2150,7 @@ static int xmaframes_decode_packet(AVCodecContext *avctx, AVFrame *frame,
-+         return 0;
-+     }
-+ 
-+-    decode_frame(s, data, got_frame_ptr);
-++    decode_frame(s, frame, got_frame_ptr);
-+ 
-+     return avpkt->size;
-+ }
 diff --git a/ports/ffmpeg/portfile.cmake b/ports/ffmpeg/portfile.cmake
 index 519b343af0..9abcbbd3a5 100644
 --- a/ports/ffmpeg/portfile.cmake
@@ -355,3 +278,4 @@ index 519b343af0..9abcbbd3a5 100644
      string(REGEX REPLACE "-arch [A-Za-z0-9_]+" "" VCPKG_COMBINED_SHARED_LINKER_FLAGS_RELEASE_SANITIZED "${VCPKG_COMBINED_SHARED_LINKER_FLAGS_RELEASE}")
 -- 
 2.39.5 (Apple Git-154)
+
