@@ -54,7 +54,7 @@ jobs:
             cmake:p
             ninja:p
         if: matrix.triplet == 'mingw-static'
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up build environment (macos-latest)
         run: |
@@ -77,7 +77,7 @@ jobs:
         run: |
           (cd ${{ matrix.vcpkg-root }} && git fetch origin)
           (cd ${{ matrix.vcpkg-root }} && git reset --hard)
-          (cd ${{ matrix.vcpkg-root }} && git checkout 7087dcfba66c8da4acb50b09ea680b4e9050a4e9)
+          (cd ${{ matrix.vcpkg-root }} && git checkout 9e593bb18ea69cc5095e012465dcd675a822ed0d)
           (cd ${{ matrix.vcpkg-root }} && git apply --ignore-space-change --ignore-whitespace --3way ${{ github.workspace }}/ffmpeg.patch)
 
       - name: Bootstrap vcpkg (windows-latest)
@@ -97,7 +97,7 @@ jobs:
           vcpkg ${{ matrix.extra-args }} install ffmpeg[avcodec,avfilter,avdevice,avformat,swresample,swscale]:${{ matrix.arch }}-${{ matrix.triplet }}
         if: matrix.triplet == 'mingw-static'
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ffmpeg-${{ matrix.build }}-${{ matrix.arch }}
           path: ${{ matrix.vcpkg-root }}/packages/ffmpeg_${{ matrix.arch }}-${{ matrix.triplet }}/lib
@@ -105,16 +105,16 @@ jobs:
 
   create-release:
     needs: [build]
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-latest"
     if: github.ref == 'refs/heads/master'
     permissions:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
 
       - name: Compute short git commit SHA
         run: |
