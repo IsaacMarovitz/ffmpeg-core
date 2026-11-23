@@ -133,6 +133,6 @@ jobs:
           ls -al artifacts/
           wget -c https://github.com/tcnksm/ghr/releases/download/v0.14.0/ghr_v0.14.0_linux_amd64.tar.gz
           tar xfv ghr_v0.14.0_linux_amd64.tar.gz
-          ghr_v0.14.0_linux_amd64/ghr -u IsaacMarovitz -r ffmpeg-core -n 'Automatic FFmpeg CI builds (${{ env.COMMIT_SHORT_SHA }})' -b "$(printf "Corresponding commit: ${{ github.sha }}")" ${{ env.COMMIT_SHORT_SHA }} artifacts/
+          ghr_v0.14.0_linux_amd64/ghr -u sonicnext-dev -r ffmpeg-core -n 'Automatic FFmpeg CI builds (${{ env.COMMIT_SHORT_SHA }})' -b "$(printf "Corresponding commit: ${{ github.sha }}")" ${{ env.COMMIT_SHORT_SHA }} artifacts/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
